@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Configure SSH client to use school key and refuse password authentication
+
+echo "Host *
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no" > ~/.ssh/config
+
+chmod 600 ~/.ssh/config
