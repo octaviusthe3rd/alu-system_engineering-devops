@@ -1,23 +1,44 @@
 #!/usr/bin/env bash
-# Script to configure Nginx redirection
+# Installs, configures, and starts the server
 
 # Update package list and install Nginx
-sudo apt-get -y update
-sudo apt-get -y install nginx
+apt-get update
+apt-get -y install nginx
+
+# Allow Nginx HTTP traffic through the firewall
+sudo ufw allow 'Nginx HTTP'
+
+# Create the web root directory and set permissions
+mkdir -p /var/www/html/
+sudo chmod -R 755 /var/www
 
 # Create a simple index.html file
-echo "Holberton School" >> /var/www/html/index.html
+echo 'Hello World!' > /var/www/html/index.html
 
 # Configure Nginx redirection
-REDIRECTION_BLOCK=$(cat <<-EOF
-        location = /redirect_me/ {
-            return 301 https://beap.vercel.app;
-        }
+SERVER_CONFIG=$(cat << EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    if (\$request_filename ~ redirect_me/){
+        rewrite ^ https://beap.vercel.app;
+    }
+}
 EOF
 )
-sudo sed -i "/try_files/i\\$REDIRECTION_BLOCK" /etc/nginx/sites-available/default
-sudo sed -i "/listen 80/a\\    server_name octaviuslive.tech;" /etc/nginx/sites-available/default
+bash -c "echo -e '$SERVER_CONFIG' > /etc/nginx/sites-enabled/default"
 
-# Restart Nginx
-sudo service nginx start
-sudo systemctl restart nginx
+# Start or restart Nginx
+if [ "$(pgrep -c nginx)" -le 0 ]; then
+    service nginx start
+else
+    service nginx restart
+fi
