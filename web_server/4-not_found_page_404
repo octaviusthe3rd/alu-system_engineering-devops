@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Script to configure Nginx custom 404 page
+
+# Check if Nginx is installed, install if not
+which nginx > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    apt-get update
+    apt-get -y install nginx
+fi
+
+# Backup Nginx configuration
+BACKUP_FILE="/etc/nginx/sites-available/default.$(date +%Y%m%d_%H%M%S).backup"
+cp "/etc/nginx/sites-available/default" "$BACKUP_FILE"
+
+# Configure custom 404 page
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name octaviuslive.tech;
+
+    location = /redirect_me {
+        return 301 https://beap.vercel.app;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root /var/www/html;
+        internal;
+        return 404 "Ceci n'est pas une page";
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+# Create the custom 404 page
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+
+# Restart Nginx
+systemctl restart nginx
