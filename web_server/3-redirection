@@ -11,7 +11,7 @@ echo "Holberton School" >> /var/www/html/index.html
 # Configure Nginx redirection
 REDIRECTION_BLOCK=$(cat <<-EOF
         location = /redirect_me/ {
-            return 301 https://beepbot.vercel.app;
+            return 301 https://beap.vercel.app;
         }
 EOF
 )
