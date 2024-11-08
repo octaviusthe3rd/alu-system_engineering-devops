@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 # Script to configure Nginx redirection
+
+# Update package list and install Nginx
 sudo apt-get -y update
 sudo apt-get -y install nginx
 
+# Create a simple index.html file
 echo "Holberton School" >> /var/www/html/index.html
 
 # Configure Nginx redirection
-sudo sed -i '/listen 80/a\    server_name octaviuslive.tech;' /etc/nginx/sites-available/default
-sudo sed -i '/try_files/i\        location = /redirect_me/ {\n            return 301 https://beepbot.vercel.app;\n        }' /etc/nginx/sites-available/default
+REDIRECTION_BLOCK=$(cat <<-EOF
+        location = /redirect_me/ {
+            return 301 https://beepbot.vercel.app;
+        }
+EOF
+)
+sudo sed -i "/try_files/i\\$REDIRECTION_BLOCK" /etc/nginx/sites-available/default
+sudo sed -i "/listen 80/a\\    server_name octaviuslive.tech;" /etc/nginx/sites-available/default
 
 # Restart Nginx
 sudo service nginx start
