@@ -10,4 +10,5 @@ sudo sed -i '/listen 80/a\    server_name octaviuslive.tech;' /etc/nginx/sites-a
 sudo sed -i '/try_files/i\        location = /redirect_me/ {\n            return 301 https://beepbot.vercel.app;\n        }' /etc/nginx/sites-available/default
 
 # Restart Nginx
-sudo service nginx restart
+sudo service nginx start
+sudo systemctl restart nginx
