@@ -21,11 +21,11 @@ server {
     index index.html index.htm index.nginx-debian.html;
     server_name octaviuslive.tech;
 
-    location = /redirect_me {
+    location = /redirect_me/ {
         return 301 https://beap.vercel.app;
     }
 
-    error_page 404 /404.html;
+    error_page 404 /404.html/;
     location = /404.html {
         root /var/www/html;
         internal;
