@@ -3,17 +3,13 @@
 
 # Backup Nginx configuration
 BACKUP_FILE="/etc/nginx/sites-available/default.$(date +%Y%m%d_%H%M%S).backup"
-cp /etc/nginx/sites-available/default $BACKUP_FILE
+cp /etc/nginx/sites-available/default "$BACKUP_FILE"
 
 # Configure Nginx redirection
 cat >> /etc/nginx/sites-available/default << 'EOF'
 
     location = /redirect_me {
         return 301 https://beepbot.vercel.app;
-    }
-
-    location / {
-        try_files $uri $uri/ =404;
     }
 EOF
 
