@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Script to configure Nginx redirection
-apt-get update
-apt-get -y install nginx
+sudo apt-get update
+sudo apt-get -y install nginx
 
 echo "Holberton School" >> /var/www/html/index.html
 
 # Creating a default file backup
 BACKUP_FILE="/etc/nginx/sites-available/default.$(date +%Y%m%d_%H%M%S).backup"
-cp /etc/nginx/sites-available/default "$BACKUP_FILE"
+sudo cp /etc/nginx/sites-available/default "$BACKUP_FILE"
 
 # Configure Nginx redirection
-sed -i '/listen 80/a\    server_name octaviuslive.tech;' /etc/nginx/sites-available/default
-sed -i '/try_files/i\        location = /redirect_me {\n            return 301 https://beepbot.vercel.app;\n        }' /etc/nginx/sites-available/default
+sudo sed -i '/listen 80/a\    server_name octaviuslive.tech;' /etc/nginx/sites-available/default
+sudo sed -i '/try_files/i\        location = /redirect_me {\n            return 301 https://beepbot.vercel.app;\n        }' /etc/nginx/sites-available/default
 
 # Restart Nginx
-service nginx restart
+sudo service nginx restart
