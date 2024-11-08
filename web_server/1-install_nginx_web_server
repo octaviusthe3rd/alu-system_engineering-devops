@@ -1,4 +1,4 @@
-#!/usr/bin/bash env
+#!/usr/bin/env bash
 # Script to install and configure Nginx as to requirements
 
 apt-get -y update
