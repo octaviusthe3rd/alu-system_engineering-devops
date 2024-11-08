@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 # Script to configure Nginx redirection
-sudo apt-get update
+sudo apt-get -y update
 sudo apt-get -y install nginx
 
 echo "Holberton School" >> /var/www/html/index.html
-
-# Creating a default file backup
-BACKUP_FILE="/etc/nginx/sites-available/default.$(date +%Y%m%d_%H%M%S).backup"
-sudo cp /etc/nginx/sites-available/default "$BACKUP_FILE"
 
 # Configure Nginx redirection
 sudo sed -i '/listen 80/a\    server_name octaviuslive.tech;' /etc/nginx/sites-available/default
