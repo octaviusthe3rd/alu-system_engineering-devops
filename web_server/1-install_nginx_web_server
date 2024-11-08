@@ -1,0 +1,25 @@
+#!/usr/bin/bash env
+# Script to install and configure Nginx as to requirements
+
+apt-get -y update
+
+apt-get install -y nginx
+
+echo "Holberton School" >> /var/www/html/index.html
+
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+service nginx start
+
+systemctl restart nginx
