@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine with Nginx and custom header
+
+# Update and install nginx
+apt-get -y update
+apt-get -y install nginx
+
+# Start nginx service
+service nginx start
+
+# Allow HTTP traffic
+ufw allow 'Nginx HTTP'
+
+# Create directory structure if it doesn't exist
+mkdir -p /var/www/html /var/www/error
+
+chown -R "$USER":"$USER" /var/www
+chmod -R 755 /var/www
+
+# Create a basic index.html
+echo "Holberton School" > /var/www/html/index.html
+
+# Create a custom 404 page
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+
+# Get hostname for custom header
+HOSTNAME=$(hostname)
+
+# Create new Nginx configuration with custom header
+cat > /etc/nginx/sites-available/default << EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name octaviuslive.tech;
+
+    add_header X-Served-By $HOSTNAME;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+}
+EOF
+
+# Restart nginx
+service nginx restart
