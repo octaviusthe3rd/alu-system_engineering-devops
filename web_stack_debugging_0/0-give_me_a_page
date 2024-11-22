@@ -19,7 +19,7 @@ sudo apt update
 # Creating the Dockerfile
 echo "Creating Dockerfile..."
 cat <<EOF > Dockerfile
-FROM ubuntu:20.04
+FROM ubuntu:16.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y apache2
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -46,7 +46,7 @@ echo "Docker image built successfully: $IMAGE_NAME"
 
 # Running the container
 echo "Running Docker container..."
-CONTAINER_ID=$(docker run -p $HOST_PORT:$CONTAINER_PORT -d $IMAGE_NAME)
+docker run -p $HOST_PORT:$CONTAINER_PORT -d $IMAGE_NAME
 if [ $? -ne 0 ]; then
     echo "Error: Failed to run the Docker container."
     exit 1
