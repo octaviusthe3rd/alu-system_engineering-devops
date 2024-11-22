@@ -1,0 +1,51 @@
+#!/bin/bash
+# Script to setup a docker container and execute it as required
+
+IMAGE_NAME="holbertonschool/265-0"
+CONTAINER_PORT=80                 
+HOST_PORT=8080
+
+# Creating a Dockerfile
+echo "Creating Dockerfile..."
+
+cat <<EOF > Dockerfile
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive # Setting Ubuntu to non-interactive mode
+
+RUN apt-get update && apt-get install -y apache2
+
+WORKDIR /app
+
+RUN echo "Hello Holberton" > index.html
+
+RUN cp index.html /var/www/html/index.html
+
+EXPOSE 80
+
+CMD ["apachectl", "-D", "FOREGROUND"]
+EOF
+
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to create Dockerfile."
+  exit 1
+fi
+echo "Dockerfile created successfully."
+
+# Build the Docker image
+echo "Building Docker image..."
+docker build -t $IMAGE_NAME .
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to build the Docker image."
+  exit 1
+fi
+echo "Docker image built successfully: $IMAGE_NAME"
+
+# Running the container
+echo "Running Docker container..."
+docker run -p $HOST_PORT:$CONTAINER_PORT -d $IMAGE_NAME
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to run the Docker container."
+  exit 1
+fi
+echo "Docker container is running. Access it at: http://localhost:$HOST_PORT"
