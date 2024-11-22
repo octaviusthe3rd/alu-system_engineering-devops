@@ -63,3 +63,14 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 echo "Docker container is running. Access it at: http://localhost:$HOST_PORT"
+
+# Using the curl command
+echo "Testing container response..."
+sleep 2
+curl -s http://localhost:$HOST_PORT | grep "Hello Holberton" > /dev/null
+if [ $? -eq 0 ]; then
+  echo "Container is working as expected! Response contains: Hello Holberton"
+else
+  echo "Error: Container is not responding correctly. Please debug."
+  exit 1
+fi
