@@ -1,76 +1,64 @@
 #!/usr/bin/env bash
-# Script to setup a docker container and execute it as required
+# Script to setup a Docker container and execute it as required
 
 IMAGE_NAME="holbertonschool/265-0"
 CONTAINER_PORT=80
 HOST_PORT=8080
 
+# Setting up the environment
+echo "Updating system and installing dependencies..."
 sudo apt update && sudo apt upgrade -y
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+mkdir -p DockerSetup && cd DockerSetup
 
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
 
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# Installing Snap and Docker
+sudo apt install snapd
+sudo snap install docker
+sudo apt update
 
-# Creating a Dockerfile
+# Creating the Dockerfile
 echo "Creating Dockerfile..."
-
 cat <<EOF > Dockerfile
 FROM ubuntu:20.04
-
-ENV DEBIAN_FRONTEND=noninteractive # Setting Ubuntu to non-interactive mode
-
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y apache2
-
-WORKDIR /app
-
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+WORKDIR /var/www/html
 RUN echo "Hello Holberton" > index.html
-
-RUN cp index.html /var/www/html/index.html
-
 EXPOSE 80
-
 CMD ["apachectl", "-D", "FOREGROUND"]
 EOF
 
 if [ $? -ne 0 ]; then
-  echo "Error: Failed to create Dockerfile."
-  exit 1
+    echo "Error: Failed to create Dockerfile."
+    exit 1
 fi
 echo "Dockerfile created successfully."
 
-# Build the Docker image
+# Building the Docker image
 echo "Building Docker image..."
 docker build -t $IMAGE_NAME .
 if [ $? -ne 0 ]; then
-  echo "Error: Failed to build the Docker image."
-  exit 1
+    echo "Error: Failed to build the Docker image."
+    exit 1
 fi
 echo "Docker image built successfully: $IMAGE_NAME"
 
 # Running the container
 echo "Running Docker container..."
-docker run -p $HOST_PORT:$CONTAINER_PORT -d $IMAGE_NAME
+CONTAINER_ID=$(docker run -p $HOST_PORT:$CONTAINER_PORT -d $IMAGE_NAME)
 if [ $? -ne 0 ]; then
-  echo "Error: Failed to run the Docker container."
-  exit 1
+    echo "Error: Failed to run the Docker container."
+    exit 1
 fi
-echo "Docker container is running. Access it at: http://localhost:$HOST_PORT"
 
-# Using the curl command
+# Using the curl command to test the response
 echo "Testing container response..."
 sleep 2
-curl -s http://localhost:$HOST_PORT | grep "Hello Holberton" > /dev/null
-if [ $? -eq 0 ]; then
-  echo "Container is working as expected! Response contains: Hello Holberton"
+RESPONSE=$(curl -s http://localhost:$HOST_PORT)
+if [[ "$RESPONSE" == "Hello Holberton" ]]; then
+    echo "Container is working as expected! Returned response:$RESPONSE"
 else
-  echo "Error: Container is not responding correctly. Please debug."
-  exit 1
+    echo "Error: Expected 'Hello Holberton', but got: $RESPONSE"
+    exit 1
 fi
